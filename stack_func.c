@@ -1,99 +1,101 @@
 #include "monty.h"
 /**
- * _push - push int to a stack
- * @stack: linked lists for monty stack
- * @line_number: number of line opcode occurs on
+ * pall - Print list
+ * @stack: Double linked list
+ * @line_number: File line execution
  */
-void _push(stack_t **stack, __attribute__ ((unused))unsigned int line_number)
+void pall(stack_t **stack, unsigned int line_number)
 {
-	stack_t *top;
-	(void)line_number;
+	stack_t *tmp = *stack;
+	(void) line_number;
 
-	top = malloc(sizeof(stack_t));
-	if (top == NULL)
+	if (!tmp)
+		return;
+	while (tmp)
+	{
+		printf("%d\n", tmp->n);
+		tmp = tmp->next;
+	}
+}
+
+/**
+ * push - Insert a new value in list
+ * @stack: Double linked list
+ * @line_number: File line execution
+ */
+void push(stack_t **stack, unsigned int line_number)
+{
+	stack_t *tmp = NULL, *tm = *stack;
+	char *num;
+
+	num = strtok(NULL, " \r\t\n");
+	if (num == NULL || (_isdigit(num) != 0 && num[0] != '-'))
+	{
+		fprintf(stderr, "L%u: usage: push integer\n", line_number);
+		free_all();
+		exit(EXIT_FAILURE);
+	}
+	tmp = malloc(sizeof(stack_t));
+	if (!tmp)
 	{
 		fprintf(stderr, "Error: malloc failed\n");
+		free_all();
 		exit(EXIT_FAILURE);
 	}
-
-	top->n = var_global.push_arg;
-	top->next = *stack;
-	top->prev = NULL;
-	if (*stack != NULL)
-		(*stack)->prev = top;
-	*stack = top;
-}
-
-/**
- * _pall - print all function
- * @stack: pointer to linked list stack
- * @line_number: number of line opcode occurs on
- */
-void _pall(stack_t **stack, __attribute__ ((unused))unsigned int line_number)
-{
-	stack_t *runner;
-
-	runner = *stack;
-	while (runner != NULL)
+	tmp->n = atoi(num);
+	if (var.MODE == 0 || !*stack)
 	{
-		printf("%d\n", runner->n);
-		runner = runner->next;
+		tmp->next = *stack;
+		tmp->prev = NULL;
+		if (*stack)
+			(*stack)->prev = tmp;
+		*stack = tmp;
+	}
+	else
+	{
+		while (tm->next)
+			tm = tm->next;
+		tm->next = tmp;
+		tmp->prev = tm;
+		tmp->next = NULL;
 	}
 }
 
 /**
- * _pint - print int a top of stack
- * @stack: pointer to linked list stack
- * @line_number: number of line opcode occurs on
- *
+ * pint - Print last node
+ * @stack: Double linked list
+ * @line_number: File line execution
  */
-void _pint(stack_t **stack, unsigned int line_number)
+void pint(stack_t **stack, unsigned int line_number)
 {
-	stack_t *runner;
-
-	runner = *stack;
-	if (runner == NULL)
+	if (!*stack)
 	{
-		fprintf(stderr, "L%d: can't pint, stack empty\n", line_number);
+		fprintf(stderr, "L%u: can't pint, stack empty\n", line_number);
+		free_all();
 		exit(EXIT_FAILURE);
 	}
-	printf("%d\n", runner->n);
+	printf("%d\n", (*stack)->n);
 }
 
 /**
- * _pop - remove element a list
- *@stack: pointer to first node
- *@line_number: integer
- *Return: void
- */
-void _pop(stack_t **stack, unsigned int line_number)
-{
-	stack_t *nodo = *stack;
-
-	if (stack == NULL || *stack == NULL)
-	{
-		fprintf(stderr, "L%d: can't pop an empty stack\n", line_number);
-		exit(EXIT_FAILURE);
-	}
-	*stack = nodo->next;
-	if (*stack != NULL)
-		(*stack)->prev = NULL;
-	free(nodo);
-}
-
-/**
- * free_dlistint - free a list
- * @head: pointer to first node
- *
- */
-void free_dlistint(stack_t *head)
+* pop - Delete top of list
+* @stack: Double linked list
+* @line_number: File line execution
+*/
+void pop(stack_t **stack, unsigned int line_number)
 {
 	stack_t *tmp;
 
-	while (head != NULL)
+	if (!*stack)
 	{
-		tmp = head->next;
-		free(head);
-		head = tmp;
+		fprintf(stderr, "L%u: can't pop an empty stack\n", line_number);
+		free_all();
+		exit(EXIT_FAILURE);
 	}
+
+	tmp = *stack;
+	*stack = tmp->next;
+	if (tmp->next)
+		tmp->next->prev = NULL;
+	free(tmp);
 }

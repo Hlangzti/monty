@@ -1,79 +1,94 @@
 #include "monty.h"
 
 /**
- * _pstr - mod top of stack y second top stack
- * @stack: pointer to lists for monty stack
- * @line_number: number of line opcode occurs on
+ * mul - s
+ * @stack: Double linked list
+ * @line_number: File line execution
  */
-void _pstr(stack_t **stack, unsigned int line_number)
+void mul(stack_t **stack, unsigned int line_number)
+{
+	if (!*stack || !(*stack)->next)
+	{
+		fprintf(stderr, "L%u: can't mul, stack too short\n",
+			line_number);
+		free_all();
+		exit(EXIT_FAILURE);
+	}
+	(*stack)->next->n = (*stack)->next->n * (*stack)->n;
+	pop(stack, line_number);
+}
+
+
+/**
+ * mod - s
+ * @stack: Double linked list
+ * @line_number: File line execution
+ */
+void mod(stack_t **stack, unsigned int line_number)
+{
+	if (!*stack || !(*stack)->next)
+	{
+		fprintf(stderr, "L%u: can't mod, stack too short\n",
+			line_number);
+		free_all();
+		exit(EXIT_FAILURE);
+	}
+	if ((*stack)->n == 0)
+	{
+		fprintf(stderr, "L%u: division by zero\n", line_number);
+		free_all();
+		exit(EXIT_FAILURE);
+	}
+	(*stack)->next->n = (*stack)->next->n % (*stack)->n;
+	pop(stack, line_number);
+}
+
+/**
+ * pchar - s
+ * @stack: Double linked list
+ * @line_number: File line execution
+ */
+void pchar(stack_t **stack, unsigned int line_number)
+{
+	if (!stack || !*stack)
+	{
+		fprintf(stderr, "L%u: can't pchar, stack empty\n", line_number);
+		free_all();
+		exit(EXIT_FAILURE);
+	}
+	if (isascii((*stack)->n))
+	{
+		printf("%c\n", (*stack)->n);
+		return;
+	}
+	fprintf(stderr, "L%u: can't pchar, value out of range\n", line_number);
+	free_all();
+	exit(EXIT_FAILURE);
+}
+
+/**
+ * pstr - s
+ * @stack: Double linked list
+ * @line_number: File line execution
+ */
+void pstr(stack_t **stack, unsigned int line_number)
 {
 	stack_t *tmp = *stack;
-	int c = 0;
+	(void) line_number;
 
-	(void)line_number;
-
-
+	if (!stack || !*stack)
+	{
+		putchar('\n');
+		return;
+	}
 	while (tmp)
 	{
-		c = tmp->n;
-		if (c == 0 || _isalpha(c) == 0)
+		if (tmp->n == 0)
 			break;
-		putchar(c);
+		if (!isascii((tmp)->n))
+			break;
+		putchar(tmp->n);
 		tmp = tmp->next;
 	}
 	putchar('\n');
-}
-
-/**
- * _rotl - mod top of stack y second top stack
- * @stack: pointer to lists for monty stack
- * @line_number: number of line opcode occurs on
- */
-void _rotl(stack_t **stack, unsigned int line_number)
-{
-	stack_t *runner = *stack;
-
-
-	int aux1 = 0;
-
-	if (!line_number || !stack || !*stack || !(*stack)->next)
-		return;
-
-	aux1 = runner->n;
-
-	while (runner->next)
-	{
-		runner = runner->next;
-		runner->prev->n = runner->n;
-	}
-
-	runner->n = aux1;
-}
-
-/**
- * _rotr - mod top of stack y second top stacks
- * @stack: pointer to lists for monty stack
- * @line_number: number of line opcode occurs on
- */
-void _rotr(stack_t **stack, unsigned int line_number)
-{
-	stack_t *runner = *stack;
-
-	int aux1 = 0;
-
-	if (!line_number || !stack || !*stack || !(*stack)->next)
-		return;
-
-	while (runner->next)
-		runner = runner->next;
-
-	aux1 = runner->n;
-
-	while (runner->prev)
-	{
-		runner = runner->prev;
-		runner->next->n = runner->n;
-	}
-
-	runner->n = aux1;
 }
